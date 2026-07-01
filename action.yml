@@ -44,8 +44,6 @@ runs:
       run: |
         set -e
 
-        echo "hypegram-debug: token length = ${#HYPEGRAM_TOKEN}, chat_id length = ${#HYPEGRAM_CHAT_ID}"
-
         DEFAULT_SUCCESS=(
           "https://cataas.com/cat/gif/says/Deployed!"
           "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif"

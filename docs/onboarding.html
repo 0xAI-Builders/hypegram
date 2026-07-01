@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>~*~ HYPEGRAM ONBOARDING ~*~ :: Get your team hooked up in 5 minutes!!!</title>
+<meta name="description" content="Step-by-step guide to add hypegram Telegram notifications to your GitHub Actions workflow. Made for teams. ~5 min setup.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ~*~ 90s stylez ~*~ */
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
+    color: #ffff00;
+    background: #2a0845;
+    background-image:
+      radial-gradient(2px 2px at 20px 30px, #ffffff, transparent),
+      radial-gradient(2px 2px at 40px 70px, #ffff00, transparent),
+      radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
+      radial-gradient(1.5px 1.5px at 130px 80px, #00ffff, transparent),
+      radial-gradient(1px 1px at 160px 120px, #ff00ff, transparent),
+      radial-gradient(2px 2px at 200px 30px, #ffffff, transparent),
+      linear-gradient(180deg, #2a0845 0%, #6441a5 100%);
+    background-repeat: repeat;
+    background-size: 220px 160px, 220px 160px, 220px 160px, 220px 160px, 220px 160px, 220px 160px, 100% 100%;
+  }
+  body { padding: 8px; font-size: 15px; line-height: 1.5; }
+
+  a { color: #00ffff; text-decoration: underline; }
+  a:visited { color: #ff69b4; }
+  a:hover { background: #ffff00; color: #000000; }
+
+  h1, h2, h3 { font-family: "Comic Sans MS", cursive; margin: 0 0 8px 0; }
+  h1 {
+    text-align: center;
+    font-size: 48px;
+    color: #ffff00;
+    text-shadow:
+      3px 3px 0 #ff00ff,
+      6px 6px 0 #00ffff,
+      9px 9px 12px rgba(0,0,0,0.7);
+    letter-spacing: 3px;
+  }
+  h2 {
+    font-size: 26px;
+    color: #00ff00;
+    text-shadow: 2px 2px 0 #000, 4px 4px 8px #ff00ff;
+    border-bottom: 3px double #ff00ff;
+    padding-bottom: 4px;
+    margin-top: 24px;
+  }
+  h3 { color: #ffff66; font-size: 18px; margin-top: 16px; }
+
+  .blink { animation: blink 1s steps(2, start) infinite; }
+  @keyframes blink { to { visibility: hidden; } }
+
+  .rainbow-hr {
+    height: 6px;
+    border: 0;
+    background: linear-gradient(90deg,
+      #ff0000, #ff8800, #ffff00, #00ff00,
+      #00ffff, #0088ff, #8800ff, #ff00ff, #ff0000);
+    background-size: 200% 100%;
+    animation: rainbow-scroll 3s linear infinite;
+    box-shadow: 0 0 8px rgba(255,255,255,0.5);
+  }
+  @keyframes rainbow-scroll { to { background-position: 200% 0; } }
+
+  .neon-box {
+    border: 3px ridge #ff00ff;
+    background: rgba(0,0,0,0.55);
+    padding: 12px 16px;
+    margin: 12px 0;
+    box-shadow: 0 0 12px #ff00ff, inset 0 0 8px rgba(255,0,255,0.3);
+  }
+  .neon-box.cyan {
+    border-color: #00ffff;
+    box-shadow: 0 0 12px #00ffff, inset 0 0 8px rgba(0,255,255,0.3);
+  }
+  .neon-box.green {
+    border-color: #00ff00;
+    box-shadow: 0 0 12px #00ff00, inset 0 0 8px rgba(0,255,0,0.3);
+  }
+
+  pre, code {
+    font-family: "Courier New", Courier, monospace;
+    background: #000;
+    color: #00ff00;
+    padding: 10px;
+    border: 2px inset #888;
+    display: block;
+    overflow-x: auto;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.6);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  code.inline {
+    display: inline;
+    padding: 2px 6px;
+    border: 1px solid #00ff00;
+    background: #001100;
+    color: #00ff00;
+    box-shadow: none;
+  }
+
+  table.retro {
+    border-collapse: collapse;
+    width: 100%;
+    background: #000;
+    color: #ffff00;
+    box-shadow: 0 0 8px #00ffff;
+    margin: 10px 0;
+  }
+  table.retro th {
+    background: #ff00ff;
+    color: #ffffff;
+    border: 2px outset #ff88ff;
+    padding: 8px;
+    text-shadow: 1px 1px 0 #000;
+  }
+  table.retro td {
+    border: 2px inset #888;
+    padding: 8px;
+    vertical-align: top;
+  }
+  table.retro tr:nth-child(even) td { background: #1a0033; }
+  table.retro tr:nth-child(odd) td { background: #330066; }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(0,0,0,0.55);
+    border: 3px groove #ffff00;
+    padding: 20px 28px;
+    box-shadow: 0 0 15px rgba(255,255,0,0.4);
+  }
+  .wrap p { color: #ffffff; }
+  .wrap strong { color: #ffff66; }
+
+  .banner {
+    background: #000;
+    color: #00ff00;
+    border: 4px double #00ff00;
+    padding: 8px;
+    font-family: "Courier New", monospace;
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    box-shadow: 0 0 8px #00ff00;
+  }
+
+  .marquee-box {
+    background: #000;
+    border: 3px ridge #ff00ff;
+    padding: 6px;
+    margin: 8px 0;
+    color: #ffff00;
+    font-weight: bold;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .step-badge {
+    display: inline-block;
+    background: linear-gradient(180deg, #ff00ff 0%, #6600ff 100%);
+    color: #ffff00;
+    padding: 4px 12px;
+    border: 3px outset #ff88ff;
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 8px;
+    text-shadow: 2px 2px 0 #000;
+    box-shadow: 3px 3px 0 #000;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .callout {
+    background: #ffff00 repeating-linear-gradient(45deg,
+      #000 0px, #000 10px, transparent 10px, transparent 20px);
+    color: #000;
+    padding: 10px;
+    border: 4px solid #000;
+    font-weight: bold;
+    text-align: center;
+    margin: 12px 0;
+    box-shadow: 4px 4px 0 #ff0000;
+  }
+  .callout .inner {
+    background: #ffff00;
+    padding: 10px;
+    display: inline-block;
+    border: 2px solid #000;
+    text-align: left;
+    max-width: 90%;
+  }
+
+  .cta {
+    display: inline-block;
+    background: linear-gradient(180deg, #00ff00, #008800);
+    color: #000;
+    padding: 8px 18px;
+    border: 3px outset #88ff88;
+    text-decoration: none !important;
+    font-weight: bold;
+    font-size: 15px;
+    margin: 4px;
+    text-shadow: 1px 1px 0 #fff;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+  }
+  .cta:hover { background: #ffff00; }
+
+  .footer {
+    text-align: center;
+    padding: 24px 8px;
+    color: #ffffff;
+    font-size: 13px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .footer a { color: #ffff00; }
+
+  .heart { color: #ff3388; }
+
+  ol.big { color: #ffffff; padding-left: 40px; }
+  ol.big li { margin: 6px 0; }
+
+  .badge {
+    display: inline-block;
+    background: #c0c0c0;
+    color: #000;
+    padding: 4px 8px;
+    margin: 3px;
+    border: 2px outset #ffffff;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .badge.dark { background: #000; color: #00ff00; border-color: #00ff00; }
+  .badge.hot  { background: #ff00ff; color: #ffff00; border-color: #ffffff; }
+  .badge.cool { background: #0088ff; color: #ffff00; border-color: #ffffff; }
+
+  .nav-strip {
+    text-align: center;
+    padding: 8px;
+    background: rgba(0,0,0,0.5);
+    margin: 10px 0;
+    border-top: 2px ridge #00ffff;
+    border-bottom: 2px ridge #00ffff;
+  }
+
+  @media (max-width: 700px) {
+    h1 { font-size: 32px; }
+    .wrap { padding: 12px; }
+    pre { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  ★★★ HYPEGRAM ONBOARDING FOR TEAMS ★★★ [ Everything you need to hook up notifications in 5 min ]
+</div>
+
+<div class="marquee-box">
+  <marquee direction="left" scrollamount="6" behavior="scroll">
+    ~*~ FOR TEAMS ~*~ Add hypegram to your CI in 5 MINUTES!!! ~*~ 4 easy steps! ~*~ Copy paste ready snippets! ~*~ Troubleshooting guide included! ~*~ SHIP WITH STYLE!!! ~*~
+  </marquee>
+</div>
+
+<div class="nav-strip">
+  <a href="index.html" class="cta">◄ BACK TO HOME</a>
+  <a href="https://github.com/0xAI-Builders/hypegram" class="cta">📦 REPO</a>
+  <a href="https://github.com/0xAI-Builders/hypegram/issues" class="cta">❓ HELP</a>
+</div>
+
+<h1>~ ONBOARDING GUIDE ~</h1>
+
+<p style="text-align:center; color:#ffffff; font-size:17px;">
+  <span class="blink" style="color:#00ff00;">★</span>
+  Get your team hooked up to Telegram deploy notifications with <strong style="color:#ff00ff;">GIFS</strong>
+  <span class="blink" style="color:#00ff00;">★</span>
+</p>
+
+<hr class="rainbow-hr">
+
+<div class="wrap">
+
+  <p>
+    We use <a href="https://github.com/0xAI-Builders/hypegram"><strong>hypegram</strong></a> —
+    a GitHub Action that sends a random GIF to Telegram whenever your CI runs.
+    Success? Party GIF. Failure? Sad-cat GIF. It's like <code class="inline">appleboy/telegram-action</code>
+    but with more vibe.
+  </p>
+
+  <div class="neon-box cyan">
+    <strong style="color:#00ffff;">★ WHAT YOU'LL NEED ★</strong>
+    <ol class="big">
+      <li>A Telegram bot <em>(2 min)</em></li>
+      <li>Your <code class="inline">chat_id</code> <em>(1 min)</em></li>
+      <li>Two secrets in your repo <em>(1 min)</em></li>
+      <li>A YAML snippet in your workflow <em>(30 sec)</em></li>
+    </ol>
+    <p style="margin:0; color:#ffff00;">Total: <strong>~5 minutes</strong>.</p>
+  </div>
+
+  <hr class="rainbow-hr">
+
+  <h2><span class="step-badge">1</span> Create the Telegram Bot</h2>
+
+  <ol class="big">
+    <li>Open <a href="https://t.me/BotFather">@BotFather</a> in Telegram.</li>
+    <li>Send it <code class="inline">/newbot</code> and follow the prompts (pick a name and username).</li>
+    <li>BotFather gives you a <strong>token</strong> that looks like:</li>
+  </ol>
+
+  <pre>1234567890:ABCdefGHIjklMNOpqrsTUVwxyz-EXAMPLE-NOT-REAL</pre>
+
+  <p><strong>Save it.</strong> This is your <code class="inline">TELEGRAM_BOT_TOKEN</code>.</p>
+
+  <hr class="rainbow-hr">
+
+  <h2><span class="step-badge">2</span> Get Your chat_id</h2>
+
+  <ol class="big">
+    <li>Open a chat with your new bot and send it <code class="inline">/start</code>.
+        <br><em>(Or add the bot to a group — group notifications work too.)</em></li>
+    <li>Open this URL in a browser (replace with your token):</li>
+  </ol>
+
+  <pre>https://api.telegram.org/bot&lt;YOUR_TOKEN&gt;/getUpdates</pre>
+
+  <ol class="big" start="3">
+    <li>Look for <code class="inline">"chat":{"id": XXXXX}</code> in the JSON.
+        That number is your <code class="inline">TELEGRAM_CHAT_ID</code>.</li>
+  </ol>
+
+  <div class="callout">
+    <div class="inner">
+      💡 <strong>TIP:</strong> Group chat IDs start with <code>-100...</code> — that's normal, use the whole thing.
+    </div>
+  </div>
+
+  <hr class="rainbow-hr">
+
+  <h2><span class="step-badge">3</span> Save Secrets in Your Repo</h2>
+
+  <p>From your terminal (needs the <a href="https://cli.github.com/"><code class="inline">gh</code> CLI</a> installed & logged in):</p>
+
+  <pre>gh secret set TELEGRAM_BOT_TOKEN \
+  --repo &lt;owner&gt;/&lt;repo&gt; \
+  --body '1234567890:ABCdefGHI...'
+
+gh secret set TELEGRAM_CHAT_ID \
+  --repo &lt;owner&gt;/&lt;repo&gt; \
+  --body '123456789'</pre>
+
+  <p><strong>Or via the GitHub UI:</strong> <code class="inline">Repo → Settings → Secrets and variables → Actions → New repository secret</code>.</p>
+
+  <div class="callout">
+    <div class="inner">
+      ⚠️ <strong>Heads up:</strong> If you're in an organization and try to use
+      <em>org-level secrets with visibility "all repositories"</em>, some org setups
+      block secret propagation and hypegram will fail with <code>404 Not Found</code>.
+      Set them as <strong>repo-level secrets</strong> to be safe.
+    </div>
+  </div>
+
+  <hr class="rainbow-hr">
+
+  <h2><span class="step-badge">4</span> Paste in Your Workflow</h2>
+
+  <p>Open your workflow file (something like <code class="inline">.github/workflows/deploy.yml</code>)
+     and add these two steps <em>at the end of your deploy job</em>:</p>
+
+  <pre>      - name: Telegram Notification on Success
+        if: success()
+        uses: 0xAI-Builders/hypegram@v1
+        with:
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          caption: |
+            ✅ Deploy: ${{ github.repository }}
+            📝 ${{ github.event.head_commit.message }}
+            👤 ${{ github.actor }}
+            🔗 https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+
+      - name: Telegram Notification on Failure
+        if: failure()
+        uses: 0xAI-Builders/hypegram@v1
+        with:
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          status: failure
+          caption: |
+            ❌ Deploy failed: ${{ github.repository }}
+            🔗 https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}</pre>
+
+  <p style="text-align:center; font-size:22px; color:#00ff00;">
+    <span class="blink">★</span> <strong>DONE.</strong> <span class="blink">★</span>
+  </p>
+
+  <p style="text-align:center; color:#ffffff;">
+    Push a commit that triggers your workflow — a GIF should land in your Telegram chat.
+  </p>
+
+  <hr class="rainbow-hr">
+
+  <h2>💥 Cool Extras</h2>
+
+  <div class="neon-box green">
+    <h3>Custom GIFs</h3>
+    <p>Pass your own vibe with the <code class="inline">gifs:</code> input (one URL per line):</p>
+    <pre>with:
+  token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
+  caption: "Shipped 🚀"
+  gifs: |
+    https://media.giphy.com/media/xxx/giphy.gif
+    https://media.giphy.com/media/yyy/giphy.gif
+    https://cataas.com/cat/gif/says/Ship%20it</pre>
+  </div>
+
+  <div class="neon-box cyan">
+    <h3>Non-CI use cases</h3>
+    <p>hypegram works in <strong>any</strong> workflow — not just deploys.</p>
+    <ul>
+      <li>🕔 Scheduled cheer (Friday cron)</li>
+      <li>🚀 Release announcements (<code class="inline">on: release</code>)</li>
+      <li>🎉 Manual "what are we celebrating?" (<code class="inline">workflow_dispatch</code>)</li>
+    </ul>
+    <p><a href="index.html#examples">→ See full examples on the home page</a></p>
+  </div>
+
+  <div class="neon-box">
+    <h3>Multiple chats</h3>
+    <p>Repeat the step with different <code class="inline">chat_id</code> values. Or set the bot to
+       a group and use the group's chat_id — everyone in the group gets notified at once.</p>
+  </div>
+
+  <hr class="rainbow-hr">
+
+  <h2>🧯 Troubleshooting</h2>
+
+  <table class="retro">
+    <thead>
+      <tr><th>Error</th><th>Cause</th><th>Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code class="inline">404 Not Found</code></td>
+        <td>Token secret is empty or malformed</td>
+        <td>Recheck the secret; try as repo secret instead of org secret</td>
+      </tr>
+      <tr>
+        <td><code class="inline">403 Forbidden</code></td>
+        <td>Bot wasn't started or isn't in the group</td>
+        <td>Send <code class="inline">/start</code> to the bot or add it to the group</td>
+      </tr>
+      <tr>
+        <td><code class="inline">400 chat not found</code></td>
+        <td>Wrong <code class="inline">chat_id</code></td>
+        <td>Recheck with <code class="inline">getUpdates</code></td>
+      </tr>
+      <tr>
+        <td>GIF didn't land but log says "sent"</td>
+        <td>Bot muted in your Telegram settings</td>
+        <td>Unmute the chat</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="rainbow-hr">
+
+  <h2>📚 More info</h2>
+
+  <div style="text-align:center; padding: 10px;">
+    <a href="index.html" class="cta">🏠 Home Page</a>
+    <a href="https://github.com/0xAI-Builders/hypegram" class="cta">📦 GitHub Repo</a>
+    <a href="https://github.com/0xAI-Builders/hypegram/issues" class="cta">💬 Issues</a>
+    <a href="https://github.com/0xAI-Builders/hypegram/blob/main/README.md" class="cta">📖 README</a>
+  </div>
+
+</div>
+
+<hr class="rainbow-hr">
+
+<div class="footer">
+  <p>
+    ~*~ Made with <span class="heart">♥</span> and 🍌 by
+    <a href="https://github.com/0xAI-Builders">0xAI-Builders</a> ~*~
+  </p>
+  <p>© 2026 hypegram. Licensed under MIT.</p>
+  <p>
+    <span class="badge">Powered by GitHub Pages</span>
+    <span class="badge dark">HTML 4.01 Transitional</span>
+    <span class="badge hot">Y2K COMPLIANT</span>
+    <span class="badge cool">NO COOKIES</span>
+  </p>
+  <p style="margin-top:10px;">
+    <marquee direction="right" scrollamount="4" style="color:#00ff00;">
+      ★ Share this page with your team! ★ Ship with STYLE! ★ Sign the guestbook! ★
+    </marquee>
+  </p>
+</div>
+
+</body>
+</html>

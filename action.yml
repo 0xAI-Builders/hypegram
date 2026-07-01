@@ -1,0 +1,114 @@
+name: 'Hypegram'
+description: 'Send a Telegram notification with a random celebration (or dejection) GIF. A hyped-up cousin of appleboy/telegram-action.'
+author: '0xAI-Builders'
+
+branding:
+  icon: 'send'
+  color: 'blue'
+
+inputs:
+  token:
+    description: 'Telegram bot token (from @BotFather). Pass via secrets.'
+    required: true
+  chat_id:
+    description: 'Target Telegram chat/user ID. Pass via secrets.'
+    required: true
+  status:
+    description: 'Deploy status. One of: success | failure. Controls default emoji and GIF pool.'
+    required: false
+    default: 'success'
+  caption:
+    description: 'Multi-line caption to send with the GIF. Rendered as plain text by Telegram.'
+    required: false
+    default: ''
+  gifs:
+    description: 'Newline-separated list of GIF URLs to pick from. Overrides the default pool for the current status.'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Send hyped GIF to Telegram
+      shell: bash
+      env:
+        HYPEGRAM_TOKEN: ${{ inputs.token }}
+        HYPEGRAM_CHAT_ID: ${{ inputs.chat_id }}
+        HYPEGRAM_STATUS: ${{ inputs.status }}
+        HYPEGRAM_CAPTION: ${{ inputs.caption }}
+        HYPEGRAM_GIFS: ${{ inputs.gifs }}
+        HYPEGRAM_REPO: ${{ github.repository }}
+        HYPEGRAM_ACTOR: ${{ github.actor }}
+        HYPEGRAM_RUN_ID: ${{ github.run_id }}
+        HYPEGRAM_SHA: ${{ github.sha }}
+      run: |
+        set -e
+
+        DEFAULT_SUCCESS=(
+          "https://cataas.com/cat/gif/says/Deployed!"
+          "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif"
+          "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
+          "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif"
+          "https://media.giphy.com/media/xT0xeJpnrWC3XWblEk/giphy.gif"
+          "https://media.giphy.com/media/3oz8xAFtqoOUUrsh7W/giphy.gif"
+          "https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif"
+          "https://media.giphy.com/media/26BRBKqUiq586bRVm/giphy.gif"
+          "https://media.giphy.com/media/YTbZzCkRQCEJa/giphy.gif"
+          "https://media.giphy.com/media/d86kftzaeizO8/giphy.gif"
+          "https://media.giphy.com/media/l46CyJmS9KUbokzsI/giphy.gif"
+        )
+
+        DEFAULT_FAILURE=(
+          "https://cataas.com/cat/gif/says/Failed"
+          "https://media.giphy.com/media/l1J9EdzfOSgfyueLm/giphy.gif"
+          "https://media.giphy.com/media/26xBI73gWquCBBCDe/giphy.gif"
+          "https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif"
+          "https://media.giphy.com/media/xT9IgIc0lryrxvqVGM/giphy.gif"
+          "https://media.giphy.com/media/l0Iy3ct7rH1ZfWvQI/giphy.gif"
+          "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif"
+        )
+
+        POOL=()
+        if [ -n "$HYPEGRAM_GIFS" ]; then
+          while IFS= read -r line; do
+            trimmed="${line//$'\r'/}"
+            trimmed="$(echo -n "$trimmed" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+            [ -n "$trimmed" ] && POOL+=("$trimmed")
+          done <<< "$HYPEGRAM_GIFS"
+        elif [ "$HYPEGRAM_STATUS" = "failure" ]; then
+          POOL=("${DEFAULT_FAILURE[@]}")
+        else
+          POOL=("${DEFAULT_SUCCESS[@]}")
+        fi
+
+        if [ ${#POOL[@]} -eq 0 ]; then
+          echo "::error::hypegram: GIF pool is empty."
+          exit 1
+        fi
+
+        RANDOM_GIF="${POOL[$RANDOM % ${#POOL[@]}]}"
+        echo "hypegram: selected GIF -> $RANDOM_GIF"
+
+        TMP_GIF="$(mktemp --suffix=.gif)"
+        if ! curl -sfL "$RANDOM_GIF" -o "$TMP_GIF"; then
+          echo "::warning::hypegram: could not download $RANDOM_GIF, falling back to sendMessage."
+          FALLBACK_TEXT="${HYPEGRAM_CAPTION:-Deploy notification for ${HYPEGRAM_REPO}}"
+          curl -sS -X POST "https://api.telegram.org/bot${HYPEGRAM_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${HYPEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${FALLBACK_TEXT}"
+          exit 0
+        fi
+
+        RESPONSE="$(curl -sS -X POST "https://api.telegram.org/bot${HYPEGRAM_TOKEN}/sendAnimation" \
+          -F "chat_id=${HYPEGRAM_CHAT_ID}" \
+          -F "animation=@${TMP_GIF}" \
+          -F "caption=${HYPEGRAM_CAPTION}")"
+
+        rm -f "$TMP_GIF"
+
+        if ! echo "$RESPONSE" | grep -q '"ok":true'; then
+          echo "::error::hypegram: Telegram API returned an error: $RESPONSE"
+          exit 1
+        fi
+
+        echo "hypegram: sent successfully."

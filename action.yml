@@ -99,6 +99,13 @@ runs:
           exit 0
         fi
 
+        # Telegram cap: max 1024 chars en el caption de sendAnimation.
+        # Truncamos silenciosamente con … si el caller mandó algo más
+        # largo — mejor una notificación cortita que un error del step.
+        if [ ${#HYPEGRAM_CAPTION} -gt 1024 ]; then
+          HYPEGRAM_CAPTION="${HYPEGRAM_CAPTION:0:1020}…"
+        fi
+
         RESPONSE="$(curl -sS -X POST "https://api.telegram.org/bot${HYPEGRAM_TOKEN}/sendAnimation" \
           -F "chat_id=${HYPEGRAM_CHAT_ID}" \
           -F "animation=@${TMP_GIF}" \

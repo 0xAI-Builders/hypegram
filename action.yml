@@ -29,6 +29,10 @@ inputs:
     description: 'Newline-separated list of GIF URLs to pick from. Overrides the default pool for the current status.'
     required: false
     default: ''
+  fail_on_error:
+    description: 'If "true", the step fails when Telegram rejects the notification. Default "false": a warning is logged and the step succeeds, so a notification never fails the deploy it reports on.'
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -42,6 +46,7 @@ runs:
         HYPEGRAM_CAPTION: ${{ inputs.caption }}
         HYPEGRAM_GIFS: ${{ inputs.gifs }}
         HYPEGRAM_PARSE_MODE: ${{ inputs.parse_mode }}
+        HYPEGRAM_FAIL_ON_ERROR: ${{ inputs.fail_on_error }}
         HYPEGRAM_REPO: ${{ github.repository }}
         HYPEGRAM_ACTOR: ${{ github.actor }}
         HYPEGRAM_RUN_ID: ${{ github.run_id }}

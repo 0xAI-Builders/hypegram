@@ -63,6 +63,7 @@ A hyped-up cousin of [`appleboy/telegram-action`](https://github.com/appleboy/te
 | `caption` | no       | *(empty)*    | Multi-line caption sent with the GIF. Plain text unless you set `parse_mode`. Over 1024 chars gets truncated. |
 | `parse_mode` | no    | *(empty)*    | `HTML` or `MarkdownV2`. If Telegram rejects the formatted caption (too long, broken tags), hypegram resends it as plain text with the tags stripped — you still get notified. |
 | `gifs`    | no       | *(built-in)* | Newline-separated list of GIF URLs. Overrides the built-in pool. |
+| `fail_on_error` | no | `false` | `true` makes the step fail when Telegram rejects the notification (bad token, bot blocked, wrong chat). By default a warning is logged and the step succeeds — a notification should never fail the deploy it reports on, so you don't need `continue-on-error`. *Changed in v1.2.0: before, a Telegram error failed the step.* |
 
 ## Using it across multiple repos
 

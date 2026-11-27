@@ -28,7 +28,7 @@ printf '%s' "${R[$idx]}"
 FAKE
 	chmod +x "$WORK/bin/curl"
 	export PATH="$WORK/bin:$PATH"
-	export HYPEGRAM_TOKEN=T HYPEGRAM_CHAT_ID=42 HYPEGRAM_STATUS=success HYPEGRAM_CAPTION='' HYPEGRAM_GIFS='https://x/a.gif' HYPEGRAM_REPO=o/r HYPEGRAM_PARSE_MODE=''
+	export HYPEGRAM_TOKEN=T HYPEGRAM_CHAT_ID=42 HYPEGRAM_STATUS=success HYPEGRAM_CAPTION='' HYPEGRAM_GIFS='https://x/a.gif' HYPEGRAM_REPO=o/r HYPEGRAM_PARSE_MODE='' HYPEGRAM_FAIL_ON_ERROR=''
 }
 
 # Valor del campo de formulario <name> en la llamada <n> (busca "name=..." en cualquier arg).
@@ -52,8 +52,8 @@ check 'sin parse_mode, un caption largo se recorta a 1020 + …' '[ "$(field 1 c
 setup; FAKE_DOWNLOAD=fail; HYPEGRAM_CAPTION='hola'; run
 check 'si el GIF no baja, cae a sendMessage con el texto' '[[ "$(url_of 1)" == *sendMessage ]] && [ "$(field 1 text)" = hola ] && [ "$(code)" = 0 ]'
 
-setup; FAKE_RESPONSES='{"ok":false,"description":"boom"}'; HYPEGRAM_CAPTION='hola'; run
-check 'si Telegram rechaza, el step falla' '[ "$(code)" = 1 ]'
+setup; FAKE_RESPONSES='{"ok":false,"description":"boom"}'; HYPEGRAM_CAPTION='hola'; HYPEGRAM_FAIL_ON_ERROR=true; run
+check 'con fail_on_error=true, si Telegram rechaza, el step falla' '[ "$(code)" = 1 ]'
 
 # ── Lo nuevo ────────────────────────────────────────────────────────────────
 setup; HYPEGRAM_CAPTION='<b>Deploy</b> listo'; run
@@ -80,8 +80,24 @@ plain="a & b $(printf 'z%.0s' {1..1100})"
 check 'si Telegram rechaza el formato, reintenta en texto plano: sin etiquetas, recortado' \
 	'[ "$(ncalls)" = 3 ] && [[ "$(url_of 2)" == *sendAnimation ]] && ! field 2 parse_mode >/dev/null && [ "$(field 2 caption)" = "${plain:0:1020}…" ] && [ "$(code)" = 0 ]'
 
-setup; FAKE_RESPONSES='{"ok":false}|{"ok":false}'; HYPEGRAM_PARSE_MODE=HTML; HYPEGRAM_CAPTION='<b>x</b>'; run
-check 'si también falla en plano, el step falla' '[ "$(code)" = 1 ]'
+setup; FAKE_RESPONSES='{"ok":false}|{"ok":false}'; HYPEGRAM_PARSE_MODE=HTML; HYPEGRAM_CAPTION='<b>x</b>'; HYPEGRAM_FAIL_ON_ERROR=true; run
+check 'con fail_on_error=true, si también falla en plano, el step falla' '[ "$(code)" = 1 ]'
+
+# ── fail_on_error (v1.2.0) ──────────────────────────────────────────────────
+# Un aviso que no salió no debería tumbar el deploy que ya salió bien. Por
+# defecto: warning y exit 0, sin tener que poner continue-on-error.
+setup; FAKE_RESPONSES='{"ok":false,"description":"Forbidden: bot was blocked"}'; HYPEGRAM_CAPTION='hola'; run
+check 'por defecto, si Telegram rechaza, el step no falla y deja un warning' '[ "$(code)" = 0 ] && grep -q "::warning::hypegram: Telegram API returned an error" "$WORK/out"'
+
+setup; FAKE_RESPONSES='{"ok":false}'; HYPEGRAM_CAPTION='hola'; HYPEGRAM_FAIL_ON_ERROR=false; run
+check 'con fail_on_error=false explícito, tampoco falla' '[ "$(code)" = 0 ]'
+
+# El respaldo sendMessage antes salía con 0 aunque Telegram lo rechazara.
+setup; FAKE_DOWNLOAD=fail; FAKE_RESPONSES='{"ok":false,"description":"chat not found"}'; HYPEGRAM_CAPTION='hola'; HYPEGRAM_FAIL_ON_ERROR=true; run
+check 'con fail_on_error=true, si el respaldo sendMessage es rechazado, el step falla' '[ "$(code)" = 1 ] && grep -q "chat not found" "$WORK/out"'
+
+setup; FAKE_DOWNLOAD=fail; FAKE_RESPONSES='{"ok":false,"description":"chat not found"}'; HYPEGRAM_CAPTION='hola'; run
+check 'por defecto, si el respaldo sendMessage es rechazado, warning y exit 0' '[ "$(code)" = 0 ] && grep -q "::warning::.*chat not found" "$WORK/out"'
 
 echo "# $((total-fails))/$total"
 [ $fails -eq 0 ]

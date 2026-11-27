@@ -46,6 +46,17 @@ RANDOM_GIF="${POOL[$RANDOM % ${#POOL[@]}]}"
 echo "hypegram: selected GIF -> $RANDOM_GIF"
 
 API="https://api.telegram.org/bot${HYPEGRAM_TOKEN}"
+
+# Un aviso que no salió no tumba el workflow (el deploy ya pasó): por defecto
+# se deja un warning y se sale con 0. Con fail_on_error=true, el step falla.
+fail() {
+  if [ "${HYPEGRAM_FAIL_ON_ERROR:-false}" = "true" ]; then
+    echo "::error::$1"
+    exit 1
+  fi
+  echo "::warning::$1"
+  exit 0
+}
 PARSE_MODE="${HYPEGRAM_PARSE_MODE:-}"
 
 # Telegram cap: max 1024 chars en el caption de sendAnimation. Recortamos con …
@@ -78,7 +89,12 @@ if ! curl -sfL "$RANDOM_GIF" -o "$TMP_GIF"; then
   FALLBACK_TEXT="${HYPEGRAM_CAPTION:-Deploy notification for ${HYPEGRAM_REPO}}"
   args=( -sS -X POST "${API}/sendMessage" --data-urlencode "chat_id=${HYPEGRAM_CHAT_ID}" --data-urlencode "text=${FALLBACK_TEXT}" )
   [ -n "$PARSE_MODE" ] && args+=( --data-urlencode "parse_mode=${PARSE_MODE}" )
-  curl "${args[@]}"
+  RESPONSE="$(curl "${args[@]}")"
+  # Antes salía con 0 aunque Telegram rechazara el mensaje.
+  if ! echo "$RESPONSE" | grep -q '"ok":true'; then
+    fail "hypegram: Telegram API returned an error: $RESPONSE"
+  fi
+  echo "hypegram: sent (text fallback)."
   exit 0
 fi
 
@@ -97,8 +113,7 @@ fi
 rm -f "$TMP_GIF"
 
 if ! echo "$RESPONSE" | grep -q '"ok":true'; then
-  echo "::error::hypegram: Telegram API returned an error: $RESPONSE"
-  exit 1
+  fail "hypegram: Telegram API returned an error: $RESPONSE"
 fi
 
 echo "hypegram: sent successfully."

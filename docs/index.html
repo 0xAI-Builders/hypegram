@@ -485,6 +485,12 @@
           <td><em>(built-in)</em></td>
           <td>Newline-separated list of GIF URLs. Overrides the built-in pool.</td>
         </tr>
+        <tr>
+          <td><code class="inline">fail_on_error</code></td>
+          <td>no</td>
+          <td><code class="inline">false</code></td>
+          <td><code class="inline">true</code> fails the step when Telegram rejects the notification. By default it logs a warning and succeeds, so a notification never fails your deploy. <em>Changed in v1.2.0.</em></td>
+        </tr>
       </tbody>
     </table>
 

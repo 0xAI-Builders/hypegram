@@ -7,7 +7,6 @@ DEFAULT_SUCCESS=(
   "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif"
   "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
   "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif"
-  "https://media.giphy.com/media/xT0xeJpnrWC3XWblEk/giphy.gif"
   "https://media.giphy.com/media/3oz8xAFtqoOUUrsh7W/giphy.gif"
   "https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif"
   "https://media.giphy.com/media/26BRBKqUiq586bRVm/giphy.gif"
@@ -22,7 +21,6 @@ DEFAULT_FAILURE=(
   "https://media.giphy.com/media/26xBI73gWquCBBCDe/giphy.gif"
   "https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif"
   "https://media.giphy.com/media/xT9IgIc0lryrxvqVGM/giphy.gif"
-  "https://media.giphy.com/media/l0Iy3ct7rH1ZfWvQI/giphy.gif"
   "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif"
 )
 

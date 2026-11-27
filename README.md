@@ -60,7 +60,8 @@ A hyped-up cousin of [`appleboy/telegram-action`](https://github.com/appleboy/te
 | `token`   | ✅ yes   | —            | Telegram bot token from [@BotFather](https://t.me/BotFather). |
 | `chat_id` | ✅ yes   | —            | Target chat or user ID. Send `/start` to your bot, then hit `https://api.telegram.org/bot<TOKEN>/getUpdates` to find yours. |
 | `status`  | no       | `success`    | `success` or `failure`. Picks the built-in GIF pool that fits the mood. |
-| `caption` | no       | *(empty)*    | Multi-line caption sent with the GIF. Plain text — Telegram doesn't render Markdown here. |
+| `caption` | no       | *(empty)*    | Multi-line caption sent with the GIF. Plain text unless you set `parse_mode`. Over 1024 chars gets truncated. |
+| `parse_mode` | no    | *(empty)*    | `HTML` or `MarkdownV2`. If Telegram rejects the formatted caption (too long, broken tags), hypegram resends it as plain text with the tags stripped — you still get notified. |
 | `gifs`    | no       | *(built-in)* | Newline-separated list of GIF URLs. Overrides the built-in pool. |
 
 ## Using it across multiple repos
@@ -164,14 +165,15 @@ Any URL that resolves to a GIF (or MP4/MPEG-4) works — Giphy, Tenor, Cataas, y
 
 1. Picks a random URL from the pool (custom `gifs` if provided, otherwise the built-in pool matching `status`).
 2. Downloads the GIF with `curl` and posts it to Telegram via [`sendAnimation`](https://core.telegram.org/bots/api#sendanimation).
-3. If the download fails, falls back to `sendMessage` with the caption as plain text — you always get *something*.
+3. If the download fails, falls back to `sendMessage` with the same caption (and `parse_mode`) — you always get *something*.
+4. With `parse_mode`, if Telegram rejects the formatted caption it resends the GIF with the caption as plain text, tags stripped and truncated to 1024 chars.
 
 Steps run in ~2 seconds on `ubuntu-latest`. No Docker pull, no Node install.
 
 ## FAQ
 
-**Can I use Markdown in the caption?**
-`sendAnimation` accepts `parse_mode`, but hypegram doesn't expose it yet — captions are plain text. Open an issue if you want it.
+**Can I use HTML or Markdown in the caption?**
+Yes: set `parse_mode: HTML` (or `MarkdownV2`). Escape `<`, `>` and `&` in dynamic values such as commit messages, or Telegram rejects the caption — hypegram then resends it as plain text instead of failing.
 
 **Can I send video instead of GIF?**
 Telegram's `sendAnimation` accepts GIF, MPEG-4 without sound, and short MP4s. Any of those in the `gifs` input will work.
@@ -184,9 +186,10 @@ Yes, as long as the runner can `curl` both `api.telegram.org` and the GIF URLs.
 
 ## Contributing
 
+Run the tests with `bash test/run.sh` (fake `curl`, no network).
+
 PRs welcome. Ideas that would land cleanly:
 
-- `parse_mode` input (Markdown/HTML rendering)
 - `disable_notification` input (silent send)
 - `reply_to_message_id` input (threaded replies)
 - Per-status caption defaults
